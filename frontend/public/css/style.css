@@ -298,6 +298,113 @@ body {
     color: #FFFFFF;
 }
 
+.snapshot-button {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1003;
+    transition: transform 0.2s ease;
+}
+
+.snapshot-button:hover {
+    transform: translateX(-50%) scale(1.1);
+}
+
+.snapshot-button:active {
+    transform: translateX(-50%) scale(0.95);
+}
+
+.snapshot-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 4px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    background: rgba(56, 56, 56, 0.4);
+    backdrop-filter: blur(4px);
+    transition: all 0.2s ease;
+}
+
+.snapshot-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36px;
+    height: 36px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.snapshot-button.frozen .snapshot-ring {
+    border-color: #F04E98;
+    background: rgba(240, 78, 152, 0.5);
+}
+
+.snapshot-button.frozen .snapshot-inner {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    background: #F04E98;
+}
+
+.clear-picture-button {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1003;
+    transition: transform 0.2s ease;
+}
+
+.clear-picture-button:hover {
+    transform: translateX(-50%) scale(1.1);
+}
+
+.clear-picture-button:active {
+    transform: translateX(-50%) scale(0.95);
+}
+
+.clear-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 4px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    background: rgba(56, 56, 56, 0.4);
+    backdrop-filter: blur(4px);
+    transition: all 0.2s ease;
+}
+
+.clear-x {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 32px;
+    font-weight: 300;
+    transition: all 0.2s ease;
+}
+
 .upload-btn .fa-spinner {
     animation: fa-spin 1s linear infinite;
 }

@@ -2,28 +2,17 @@ import { MediaSource } from './MediaSource.js';
 
 // CameraMedia implementation
 export class CameraMedia extends MediaSource {
-    constructor(manager) {
-        super(manager);
+    constructor(controller) {
+        super(controller);
         this.video = null;
         this.previewInterval = null;
         this.statusAlternateInterval = null;
         this.currentStatusIndex = 0;
-        this.statusMessages = [
-            '...',
-            'You\'re looking great!',
-            'Perfect angle!',
-            'Smile detected!',
-            'Double tap for screenshot!',
-            'You\'re photogenic!',
-            'Camera loves you!',
-            'Error 555 - Way too good looking!',
-            'Vectors can\'t capture all of your beauty!',
-            'Do I know you from somewhere?'
-        ];
+        this.snapshotButton = null;
     }
 
     initialize(videoHeight) {
-        this.video = this.manager.video;
+        this.video = this.controller.video;
         
         // Create canvas element
         this.canvas = document.getElementById('videoCanvas');
@@ -43,6 +32,7 @@ export class CameraMedia extends MediaSource {
         
         this.updateCanvasSize(videoHeight);
         this.createDetectionCanvas();
+        this.initializeSnapshotButton();
 
         this.showStatus();
     }
@@ -65,10 +55,16 @@ export class CameraMedia extends MediaSource {
         if (imageUploadButton) {
             imageUploadButton.style.display = 'none';
         }
+        if (this.snapshotButton) {
+            this.snapshotButton.style.display = 'block';
+        }
     }
 
     hide() {
         super.hide();
+        if (this.snapshotButton) {
+            this.snapshotButton.style.display = 'none';
+        }
     }
 
     drawFaceDetections(detections, sourceX, sourceY, sourceWidth, sourceHeight) {
@@ -208,18 +204,16 @@ export class CameraMedia extends MediaSource {
                     
                         const socket = window.controllers?.webSocket?.getSocket();
                         if (socket && socket.readyState === WebSocket.OPEN) {
-                            this.startAlternatingStatus();
+                            this.updateStatus('Connected', 'connected');
                         } else {
-                            this.updateStatus('Connecting to server...', 'connected');
-                        }
+                        this.updateStatus('Connecting to server...', 'connected');
+                    }
 
-                        this.manager.isStreaming = true;
-                        this.manager.captureAndSend();
-                        this.manager.scheduleNextCapture();
+                    this.controller.isStreaming = true;
+                    this.controller.captureAndSend();
+                    this.controller.scheduleNextCapture();
 
-                        this.previewInterval = setInterval(() => this.update(), 33);
-                        
-                        resolve();
+                    this.previewInterval = setInterval(() => this.update(), 33);                        resolve();
                     } catch (playError) {
                         console.error('Failed to play video:', playError);
                         reject(new Error(`Failed to play video: ${playError.message}`));
@@ -232,7 +226,7 @@ export class CameraMedia extends MediaSource {
                 };
                 
                 setTimeout(() => {
-                    if (!this.manager.isStreaming) {
+                    if (!this.controller.isStreaming) {
                         console.error('Video stream loading timeout - current readyState:', this.video.readyState);
                         reject(new Error('Video stream loading timeout'));
                     }
@@ -240,7 +234,7 @@ export class CameraMedia extends MediaSource {
             });
             
         } catch (error) {
-            this.manager.handleStreamError(error);
+            this.controller.handleStreamError(error);
             throw error;
         }
     }
@@ -300,29 +294,6 @@ export class CameraMedia extends MediaSource {
             this.detectionCtx.clearRect(0, 0, this.detectionCanvas.width, this.detectionCanvas.height);
         }
         this.lastDetections = null;
-    }
-
-    startAlternatingStatus() {
-        if (this.statusAlternateInterval) {
-            return;
-        }
-        
-        this.updateStatus(this.statusMessages[this.currentStatusIndex], 'connected');
-        
-        const setRandomInterval = () => {
-            const randomDelay = Math.floor(Math.random() * 7000) + 3000;
-            this.statusAlternateInterval = setTimeout(() => {
-                this.currentStatusIndex = (this.currentStatusIndex + 1) % this.statusMessages.length;
-                this.updateStatus(this.statusMessages[this.currentStatusIndex], 'connected');
-                setRandomInterval();
-            }, randomDelay);
-        };
-        
-        setRandomInterval();
-    }
-
-    onWebSocketConnected() {
-        this.startAlternatingStatus();
     }
 
     async update() {
@@ -394,7 +365,7 @@ export class CameraMedia extends MediaSource {
                 );
             }
             
-            this.manager.onPreviewUpdated && this.manager.onPreviewUpdated();
+            this.controller.onPreviewUpdated && this.controller.onPreviewUpdated();
         } else if (this.video) {
             if (!this._notReadyCount) this._notReadyCount = 0;
             if (this._notReadyCount < 5) {
@@ -408,5 +379,14 @@ export class CameraMedia extends MediaSource {
             }
             this._notReadyCount++;
         }
+    }
+
+    initializeSnapshotButton() {
+        this.snapshotButton = document.getElementById('snapshotButton');
+        if (!this.snapshotButton) return;
+
+        this.snapshotButton.addEventListener('click', () => {
+            this.controller.switchToSnapshotMode();
+        });
     }
 }

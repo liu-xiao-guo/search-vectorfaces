@@ -37,12 +37,6 @@ export class WebSocketController {
                 
                 const message = JSON.parse(event.data);
 
-                if (message.timing_stats && message.timing_stats.total_processing_ms) {
-                    if (window.controllers?.userMedia) {
-                        window.controllers.userMedia.updateAnalysisDuration(message.timing_stats.total_processing_ms);
-                    }
-                }
-                
                 if (message.type === 'analysis' && message.face_analysis) {
                     console.log('Face analysis results:', message.face_analysis);
                     console.info('Matching faces', message.matching_faces);

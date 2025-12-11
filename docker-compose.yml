@@ -16,7 +16,7 @@ services:
       search-vectorfaces-backend:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-s", "http://vectorfaces-backend:8000/stats", "|", "grep", "-q", '"status":"running"', "||", "exit", "1"]
+      test: ["CMD", "curl", "-s", "http://search-vectorfaces-backend:8000/stats", "|", "grep", "-q", '"status":"running"', "||", "exit", "1"]
       interval: 5s
       timeout: 5s
       retries: 25

@@ -176,7 +176,7 @@ class VectorFacesApp {
                 }
 
                 html += `<p><strong>Vector Similarity:</strong> ${highestScore.toFixed(3)}</p>`;
-                html += `<p><strong>Facial extraction:</strong> ${faceTime.toFixed(1)}ms</p>`;
+                html += `<p><strong>Embeddings:</strong> ${faceTime.toFixed(1)}ms</p>`;
                 
                 if (esTime > 0) {
                     html += `<p><strong>Elasticsearch:</strong> ${esTime}ms</p>`;

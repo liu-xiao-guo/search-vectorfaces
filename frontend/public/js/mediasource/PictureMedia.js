@@ -2,11 +2,12 @@ import { MediaSource } from './MediaSource.js';
 
 // PictureMedia implementation
 export class PictureMedia extends MediaSource {
-    constructor(manager) {
-        super(manager);
+    constructor(controller) {
+        super(controller);
         this.uploadedImage = null;
         this.imageUploadButton = null;
         this.imageUploadInput = null;
+        this.clearPictureButton = null;
     }
 
     initialize(videoHeight) {
@@ -32,7 +33,9 @@ export class PictureMedia extends MediaSource {
         // Setup image upload controls
         this.imageUploadButton = document.getElementById('imageUploadButton');
         this.imageUploadInput = document.getElementById('imageUploadInput');
+        this.clearPictureButton = document.getElementById('clearPictureButton');
         this.setupImageUpload();
+        this.setupClearButton();
 
         this.hideStatus();
         
@@ -54,6 +57,13 @@ export class PictureMedia extends MediaSource {
         super.show();
         if (!this.uploadedImage) {
             this.imageUploadButton.style.display = 'flex';
+            if (this.clearPictureButton) {
+                this.clearPictureButton.style.display = 'none';
+            }
+        } else {
+            if (this.clearPictureButton) {
+                this.clearPictureButton.style.display = 'block';
+            }
         }
         
         if (window.controllers?.grid) {
@@ -65,6 +75,9 @@ export class PictureMedia extends MediaSource {
         super.hide();
         if (this.imageUploadButton) {
             this.imageUploadButton.style.display = 'none';
+        }
+        if (this.clearPictureButton) {
+            this.clearPictureButton.style.display = 'none';
         }
     }
 
@@ -187,8 +200,8 @@ export class PictureMedia extends MediaSource {
     async start() {
         if (this.uploadedImage) {
             this.drawImageOnCanvas();
-            this.manager.captureAndSend();
-            this.manager.scheduleNextCapture();
+            this.controller.captureAndSend();
+            this.controller.scheduleNextCapture();
         }
     }
 
@@ -212,12 +225,23 @@ export class PictureMedia extends MediaSource {
                 this.uploadedImage = img;
                 this.drawImageOnCanvas();
                 this.imageUploadButton.style.display = 'none';
+                if (this.clearPictureButton) {
+                    this.clearPictureButton.style.display = 'block';
+                }
                 this.startImageAnalysis();
             };
             img.src = e.target.result;
         };
         reader.readAsDataURL(file);
 
+    }
+
+    setSnapshotImage(img) {
+        this.uploadedImage = img;
+        this.drawImageOnCanvas();
+        if (this.clearPictureButton) {
+            this.clearPictureButton.style.display = 'block';
+        }
     }
 
     drawImageOnCanvas() {
@@ -265,8 +289,31 @@ export class PictureMedia extends MediaSource {
     }
 
     startImageAnalysis() {
-        this.manager.captureAndSend();
-        this.manager.scheduleNextCapture();
+        this.controller.captureAndSend();
+        this.controller.scheduleNextCapture();
+    }
+
+    setupClearButton() {
+        if (this.clearPictureButton) {
+            this.clearPictureButton.addEventListener('click', () => {
+                this.clearPicture();
+            });
+        }
+    }
+
+    clearPicture() {
+        this.uploadedImage = null;
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        if (this.detectionCtx) {
+            this.detectionCtx.clearRect(0, 0, this.detectionCanvas.width, this.detectionCanvas.height);
+        }
+        this.lastDetections = null;
+        
+        if (this.clearPictureButton) {
+            this.clearPictureButton.style.display = 'none';
+        }
+        
+        this.controller.switchToCameraMode();
     }
 
     onWebSocketConnected() {

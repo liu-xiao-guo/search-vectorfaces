@@ -1,4 +1,4 @@
-import { FaceApiController } from './faceapi.js';
+
 import { CameraMedia } from '../mediasource/CameraMedia.js';
 import { PictureMedia } from '../mediasource/PictureMedia.js';
 
@@ -8,10 +8,12 @@ export class UserMediaController {
         this.status = null;
         this.streamInterval = null;
         this.isStreaming = false;
-        this.latestAnalysisDuration = 1000;
-        this.captureInterval = 10000;
-        this.videoHeight = 35;
+  
 
+        this.captureInterval = 10000;
+
+
+        this.videoHeight = 35;
         this.mediaToggle = document.getElementById('media-toggle');
         
         // Initialize media sources
@@ -72,6 +74,53 @@ export class UserMediaController {
         
         // Switch to new media source
         this.currentMediaSource = targetMediaSource;
+        this.currentMediaSource.show();
+        this.currentMediaSource.start();
+    }
+
+    switchToSnapshotMode() {
+        const snapshotData = this.cameraMedia.getImageData();
+        if (!snapshotData) return;
+
+        const img = new Image();
+        img.onload = () => {
+            this.pictureMedia.setSnapshotImage(img);
+            
+            this.currentMediaSource.stop();
+            this.currentMediaSource.hide();
+            
+            const toggleButtons = this.mediaToggle.querySelectorAll('.toggle-option');
+            toggleButtons.forEach(button => {
+                if (button.getAttribute('data-mode') === 'image') {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+            
+            this.currentMediaSource = this.pictureMedia;
+            this.currentMediaSource.show();
+            this.currentMediaSource.start();
+        };
+        img.src = snapshotData;
+    }
+
+    switchToCameraMode() {
+        if (this.currentMediaSource === this.cameraMedia) return;
+        
+        this.currentMediaSource.stop();
+        this.currentMediaSource.hide();
+        
+        const toggleButtons = this.mediaToggle.querySelectorAll('.toggle-option');
+        toggleButtons.forEach(button => {
+            if (button.getAttribute('data-mode') === 'camera') {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        });
+        
+        this.currentMediaSource = this.cameraMedia;
         this.currentMediaSource.show();
         this.currentMediaSource.start();
     }
@@ -149,24 +198,17 @@ export class UserMediaController {
     }
 
     captureAndSend() {
-        const canvas = this.currentMediaSource.getCanvas();
-        if (!canvas) return;
+        const imageData = this.currentMediaSource.getImageData();
+        if (!imageData) return;
         
         const message = {
             type: 'frame',
             timestamp: new Date().toISOString(),
-            image: canvas.toDataURL('image/jpeg', 0.75),
+            image: imageData,
             settings: window.settings
         };
 
         window.controllers.webSocket.send(message); 
-    }
-
-    updateAnalysisDuration(durationMs) {
-        if (durationMs && durationMs > 0) {
-            this.latestAnalysisDuration = Math.round(durationMs);
-            console.log(`Adjusted capture interval to ${this.latestAnalysisDuration}ms based on analysis duration`);
-        }
     }
 
     onWebSocketConnected() {

@@ -1,7 +1,7 @@
 // Base MediaSource class (Strategy pattern)
 export class MediaSource {
-    constructor(manager) {
-        this.manager = manager;
+    constructor(controller) {
+        this.controller = controller;
         this.canvas = null;
         this.ctx = null;
         this.detectionCanvas = null;
@@ -113,6 +113,11 @@ export class MediaSource {
 
     getContext() {
         return this.ctx;
+    }
+
+    getImageData() {
+        if (!this.canvas) return null;
+        return this.canvas.toDataURL('image/jpeg', 0.75);
     }
 
     update() {
