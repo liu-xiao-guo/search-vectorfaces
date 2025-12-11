@@ -1,0 +1,10 @@
+env.local
+tmp/
+.github/
+.git
+dev/
+venv/
+dev/
+*.local
+tmp/
+__pycache__/

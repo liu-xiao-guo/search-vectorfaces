@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webcam Stream</title>
+    <link rel="icon" href="https://fav.farm/🔥" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/modal.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <link rel="stylesheet" href="/css/infobox.css">
+</head>
+<body>
+    <!-- Sidebar Toggle Button -->
+    <button id="sidebar-toggle" class="button is-primary is-rounded sidebar-toggle-btn" aria-label="Toggle settings sidebar">
+        <span class="icon">
+            <i class="fas fa-cog"></i>
+        </span>
+    </button>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="menu box has-background-white">
+        <div class="sidebar-header">
+            <p class="menu-label is-size-4 has-text-weight-bold">Settings</p>
+        </div>
+        <div id="sidebar-content" class="menu-list">
+            <!-- Settings will be dynamically inserted here -->
+        </div>
+    </aside>
+
+    <!-- Infobox -->
+    <div id="infobox">
+        <div id="infobox-content">
+            <h3>Vectorfaces Demo</h3>
+            <p>Initializing...</p>
+        </div>
+        <div id="infobox-image">
+            <!-- Grid item 0 image will be displayed here -->
+        </div>
+    </div>
+
+    <div class="columns is-multiline is-mobile grid-container" id="gridContainer">
+    </div>
+    
+    <div class="user-media-container">
+        <div id="media-toggle" class="media-toggle">
+            <button class="toggle-option active" data-mode="camera" aria-label="Use camera">
+                <i class="fas fa-camera"></i>
+            </button>
+            <button class="toggle-option" data-mode="image" aria-label="Upload image">
+                <i class="fas fa-image"></i>
+            </button>
+        </div>
+        <canvas id="videoCanvas"></canvas>
+        <canvas id="imageCanvas"></canvas>
+        <input type="file" id="imageUploadInput" accept="image/*" style="display: none;">
+        <button id="imageUploadButton" class="image-upload-button" style="display: none;">
+            <i class="fas fa-upload"></i>
+            <span>Upload Image</span>
+        </button>
+        <div id="status" class="tag is-dark is-medium">
+            <span class="icon">
+                <i class="fas fa-circle"></i>
+            </span>
+            <span>Not Connected</span>
+        </div>
+        <video id="video" style="display: none;" autoplay muted playsinline></video>
+    </div>
+
+    <!-- Analysis Modal -->
+    <div id="analysis-modal" class="modal" aria-hidden="true">
+        <div class="modal-background" data-micromodal-close></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Upload</p>
+                <button class="delete" aria-label="close" data-micromodal-close></button>
+            </header>
+            <section class="modal-card-body">
+                <div class="columns">
+                    <div class="column" id="analysis-image-container">
+                        <!-- Image will be inserted here -->
+                    </div>
+                    <div class="column" id="analysis-results-container">
+                        <!-- Results will be inserted here -->
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Face-API.js library -->
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <!-- html2canvas for better screenshot capture -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <script type="module" src="/js/app.js"></script>
+
+    
+</body>
+</html>

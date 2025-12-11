@@ -1,0 +1,88 @@
+/* Infobox Component */
+#infobox {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 500px;
+    max-height: 400px;
+    background-color: rgba(85, 85, 85, 0.5);
+    border-radius: 8px;
+    padding: 16px;
+    z-index: 900;
+    overflow-y: auto;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    color:#FFFFFF;
+    display: flex;
+    gap: 16px;
+}
+
+#infobox::-webkit-scrollbar {
+    width: 6px;
+}
+
+#infobox::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+
+#infobox::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+}
+
+#infobox::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+#infobox-content {
+    color: #FFFFFF;
+    font-size: 14px;
+    line-height: 1.6;
+    flex: 1;
+    min-width: 0;
+}
+
+#infobox-image {
+    flex-shrink: 0;
+    width: 140px;
+    height: 140px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#infobox-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#infobox-content h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+#infobox-content p {
+    margin-bottom: 8px;
+}
+
+#infobox-content ul {
+    margin-left: 20px;
+    margin-bottom: 12px;
+}
+
+#infobox-content li {
+    margin-bottom: 4px;
+}
+
+#infobox-content strong {
+    color: #FFFFFF;
+}

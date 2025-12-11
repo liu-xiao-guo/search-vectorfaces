@@ -1,0 +1,5 @@
+ES_INDEX="faces"
+ES_INDICES="faces-int4_hnsw-10.15,faces-int8_hnsw-10.15,faces-disk_bbq-10.15,faces-bbq_hnsw-10.15,faces-bbq_hnsw-10.15"
+ES_UPLOADS_INDEX="faces-bbq_hnsw-uploads"
+ES_HOST=https://es-host:port
+ES_API_KEY=apikey
