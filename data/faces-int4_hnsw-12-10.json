@@ -1,0 +1,53 @@
+{
+  "aliases": {
+    "faces": {}
+  },
+  "mappings": {
+    "dynamic_templates": [
+      {
+        "default_keywords": {
+          "match_mapping_type": "string",
+          "mapping": {
+            "type": "keyword"
+          }
+        }
+      }
+    ],
+    "properties": {
+      "face_embeddings": {
+        "type": "dense_vector",
+        "dims": 512,
+        "index": true,
+        "similarity": "cosine",
+        "index_options": {
+          "type": "int4_hnsw",
+          "m": 16,
+          "ef_construction": 100
+        }
+      },
+      "id": {
+        "type": "keyword"
+      },
+      "metadata": {
+        "properties": {
+          "gender": {
+            "type": "keyword"
+          },
+          "image_path": {
+            "type": "keyword"
+          },
+          "name": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  },
+  "settings": {
+    "index": {
+      "refresh_interval": "30s",
+      "number_of_shards": "1",
+      "number_of_replicas": "0"
+    }
+  }
+}

@@ -8,3 +8,5 @@ dev/
 *.local
 tmp/
 __pycache__/
+*.ndjson
+*.tar.gz
