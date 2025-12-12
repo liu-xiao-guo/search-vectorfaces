@@ -114,6 +114,7 @@ class VectorSearch:
                            query_embedding: List[float],
                            top_k: int = 10,
                            num_candidates: int = 100,
+                           size: int = 50,
                            filters: Dict = None,
                            must_not: Dict = None,
                            exclude_indices: List[str] = None) -> List[Dict]:
@@ -129,7 +130,7 @@ class VectorSearch:
         try:
             # Build KNN query
             body = {
-                "size": top_k,
+                "size": size,
                 "collapse": {
                     "field": "id"
                 },
@@ -194,6 +195,8 @@ class VectorSearch:
                 }
                 results.append(result)
             
+
+            self.logger.debug(response)
             # Extract timing information from Elasticsearch response
             search_timing = {
                 "took": response.get('took', 0),  # Time in milliseconds
@@ -292,6 +295,8 @@ class VectorSearch:
                 )
                 
                 stats_dict[index_name] = response
+
+                self.logger.info(response)
                 
                 # Log summary
                 if '_all' in response and 'primaries' in response['_all']:

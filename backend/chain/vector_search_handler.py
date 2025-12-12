@@ -36,19 +36,20 @@ class VectorSearchHandler(FrameHandler):
                         if not i.get('selected', False):
                             must_not_indices.append(i['name'])
 
- 
-
                 k = int(settings.get('k'))
                 num_candidates = int(settings.get('num_candidates', 200))
+                size = int(settings.get('size', 50))
 
                 #trim k and num_candidates for sanitization
-                k = max(5, min(100, k))
+                k = max(3, min(100, k))
                 num_candidates = max(50, min(1000, num_candidates))
+                size = max(10, min(100, size))
                         
                 similar_faces, search_timing = self.search_service.search_similar_faces(
                     face['embedding'],
                     top_k=k,
                     num_candidates=num_candidates,
+                    size=size,
                     filters={"gender": gender_filter},
                     exclude_indices=must_not_indices
                 )

@@ -35,7 +35,8 @@ window.settings = {
             description: 'Vector index using BBQ algorithm. Uploads are ephemeral and deleted alongside demo instances.'
         }
     ],
-
+    size: '50',
+    sizeOptions: [10,20,30,40,50,75,100],
     k: '50',
     kOptions: [3,5,10,20,30,50,100],
     num_candidates: '200',
@@ -114,6 +115,20 @@ export class SidebarController {
                 <ul class="menu-list">
                     ${this.renderIndicesOptions()}
                 </ul>
+            </div>
+            
+            <div class="settings-section mb-5">
+                <p class="menu-label">size <span class="tag is-primary is-light" data-size-value>${window.settings.size}</span></p>
+                <input 
+                    type="range" 
+                    class="slider is-fullwidth is-primary" 
+                    id="size-slider"
+                    min="0"
+                    max="${window.settings.sizeOptions.length - 1}"
+                    value="${window.settings.sizeOptions.indexOf(parseInt(window.settings.size))}"
+                    step="1"
+                />
+                <p class="help has-text-grey mt-2">Number of results to display per page.</p>
             </div>
             
             <div class="settings-section mb-5">
@@ -213,6 +228,21 @@ export class SidebarController {
             });
         });
 
+        // Handle size slider
+        const sizeSlider = document.getElementById('size-slider');
+        if (sizeSlider) {
+            sizeSlider.addEventListener('input', (e) => {
+                const index = parseInt(e.target.value);
+                const newValue = window.settings.sizeOptions[index];
+                window.settings.size = newValue.toString();
+                
+                // Update the label
+                const label = document.querySelector('[data-size-value]');
+                if (label) label.textContent = newValue;
+                
+                this.onSettingsChange();
+            });
+        }
         
         // Handle k slider
         const kSlider = document.getElementById('k-slider');
