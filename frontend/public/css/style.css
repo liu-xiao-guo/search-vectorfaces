@@ -146,6 +146,29 @@ body {
     box-shadow: none;
 }
 
+.user-media-container.flash::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: white;
+    border-radius: 15px;
+    z-index: 1003;
+    pointer-events: none;
+    animation: flashAnimation 0.3s ease-out;
+}
+
+@keyframes flashAnimation {
+    0% {
+        opacity: 0.9;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
 #videoCanvas,
 #imageCanvas {
     border: 2px solid #F04E98;
@@ -188,6 +211,38 @@ body {
 
 .user-media-container:hover #status {
     opacity: 1;
+}
+
+.capture-countdown {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 52px;
+    height: 52px;
+    z-index: 1001;
+}
+
+.capture-countdown svg {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+}
+
+.countdown-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.2);
+    stroke-width: 2;
+}
+
+.countdown-progress {
+    fill: none;
+    stroke: #F04E98;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 100.53;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.1s linear;
 }
 
 .media-toggle {

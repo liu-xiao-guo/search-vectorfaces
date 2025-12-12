@@ -8,10 +8,10 @@ export class UserMediaController {
         this.status = null;
         this.streamInterval = null;
         this.isStreaming = false;
-  
+        this.countdownTimer = null;
+        this.countdownStartTime = null;
 
         this.captureInterval = 10000;
-
 
         this.videoHeight = 35;
         this.mediaToggle = document.getElementById('media-toggle');
@@ -25,6 +25,8 @@ export class UserMediaController {
     initialize() {
         this.video = document.getElementById('video');
         this.status = document.getElementById('status');
+        this.countdownElement = document.getElementById('captureCountdown');
+        this.countdownProgress = this.countdownElement?.querySelector('.countdown-progress');
 
         this.video.style.visibility = 'visible';
         this.status.style.visibility = 'visible';
@@ -172,11 +174,55 @@ export class UserMediaController {
             this.streamInterval = null;
         }
         
+        this.stopCountdown();
         this.currentMediaSource.stop();
         
         this.isStreaming = false;
         
         this.currentMediaSource.updateStatus('Stream stopped', 'disconnected');
+    }
+
+    startCountdown() {
+        if (!this.countdownElement || !this.countdownProgress) return;
+        
+        this.countdownElement.style.display = 'block';
+        this.countdownStartTime = Date.now();
+        this.updateCountdown();
+    }
+
+    updateCountdown() {
+        if (!this.isStreaming || !this.countdownProgress) return;
+        
+        const elapsed = Date.now() - this.countdownStartTime;
+        const progress = Math.min(elapsed / this.captureInterval, 1);
+        const circumference = 100.53;
+        const offset = circumference * progress;
+        
+        this.countdownProgress.style.strokeDashoffset = offset;
+        
+        if (progress < 1) {
+            this.countdownTimer = requestAnimationFrame(() => this.updateCountdown());
+        }
+    }
+
+    stopCountdown() {
+        if (this.countdownTimer) {
+            cancelAnimationFrame(this.countdownTimer);
+            this.countdownTimer = null;
+        }
+        if (this.countdownElement) {
+            this.countdownElement.style.display = 'none';
+        }
+        if (this.countdownProgress) {
+            this.countdownProgress.style.strokeDashoffset = 0;
+        }
+    }
+
+    resetCountdown() {
+        if (this.countdownTimer) {
+            cancelAnimationFrame(this.countdownTimer);
+        }
+        this.startCountdown();
     }
 
 
@@ -186,6 +232,8 @@ export class UserMediaController {
         }
 
         let interval = this.captureInterval;
+        
+        this.resetCountdown();
                 
         this.streamInterval = setTimeout(() => {
             this.captureAndSend();
@@ -201,6 +249,8 @@ export class UserMediaController {
         const imageData = this.currentMediaSource.getImageData();
         if (!imageData) return;
         
+        this.triggerFlash();
+        
         const message = {
             type: 'frame',
             timestamp: new Date().toISOString(),
@@ -209,6 +259,16 @@ export class UserMediaController {
         };
 
         window.controllers.webSocket.send(message); 
+    }
+
+    triggerFlash() {
+        const container = document.querySelector('.user-media-container');
+        if (!container) return;
+        
+        container.classList.add('flash');
+        setTimeout(() => {
+            container.classList.remove('flash');
+        }, 300);
     }
 
     onWebSocketConnected() {
