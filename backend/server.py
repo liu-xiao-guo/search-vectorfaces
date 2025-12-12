@@ -12,9 +12,18 @@ import numpy as np
 from datetime import datetime
 import time
 import traceback
+import logging
 from dotenv import load_dotenv
 from vectorfaces import FaceAnalyzer, VectorSearch
 from chain import FaceAnalysisHandler, VectorSearchHandler, ResponseBuilder
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(levelname)s] [%(name)s] - %(message)s'
+)
+
+logger = logging.getLogger(__name__)
 
 load_dotenv("env.local")
 
@@ -31,29 +40,29 @@ os.makedirs(UPLOADS_DIR, exist_ok=True)
 def initialize_services():
     global face_analyzer_initialized
     
-    print("Starting FastAPI server with WebSocket support...")
-    print("Initializing FaceAnalyzer...")
+    logger.info("Starting FastAPI server with WebSocket support...")
+    logger.info("Initializing FaceAnalyzer...")
     if face_analyzer.initialize():
-        print("✅ FaceAnalyzer initialized successfully")
+        logger.info("✅ FaceAnalyzer initialized successfully")
         face_analyzer_initialized = True
     else:
-        print("❌ FaceAnalyzer initialization failed")
+        logger.error("❌ FaceAnalyzer initialization failed")
         face_analyzer_initialized = False
     
-    print("Connecting to Elasticsearch...")
+    logger.info("Connecting to Elasticsearch...")
     if vector_search.connect():
         if vector_search.check_index_exists():
-            print("✅ Elasticsearch connected and index exists")
+            logger.info("✅ Elasticsearch connected and index exists")
         else:
-            print("⚠️ Elasticsearch connected but index does not exist")
+            logger.warning("⚠️ Elasticsearch connected but index does not exist")
     else:
-        print("⚠️ Elasticsearch connection failed - continuing without vector search")
+        logger.warning("⚠️ Elasticsearch connection failed - continuing without vector search")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     initialize_services()
     yield
-    print("Shutting down services...")
+    logger.info("Shutting down services...")
 
 app = FastAPI(lifespan=lifespan)
 
@@ -113,7 +122,7 @@ async def analyze_frame(request: dict):
         return JSONResponse(content=response)
         
     except Exception as e:
-        print(f"Error in analyze endpoint: {e}")
+        logger.error(f"Error in analyze endpoint: {e}")
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 @app.post("/api/upload")
@@ -131,7 +140,7 @@ async def upload_image(
         image_base64 = base64.b64encode(image_data).decode('utf-8')
         image_base64_with_header = f"data:image/jpeg;base64,{image_base64}"
         
-        print(f"Processing uploaded image: {image.filename}")
+        logger.info(f"Processing uploaded image: {image.filename}")
         
         context = {
             'image_data': image_base64_with_header,
@@ -147,7 +156,7 @@ async def upload_image(
         return JSONResponse(content=response)
         
     except Exception as e:
-        print(f"Error in upload endpoint: {e}")
+        logger.error(f"Error in upload endpoint: {e}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @app.post("/api/index")
@@ -164,7 +173,7 @@ async def index_base64_image(request: dict):
         if not image_base64.startswith('data:image'):
             image_base64 = f"data:image/jpeg;base64,{image_base64}"
         
-        print(f"Indexing image{f' for {name}' if name else ''}")
+        logger.info(f"Indexing image{f' for {name}' if name else ''}")
         
         face_analysis_start = time.time()
         analysis_result = face_analyzer.analyze_from_base64(image_base64)
@@ -197,7 +206,7 @@ async def index_base64_image(request: dict):
                 age = face.get('age')
                 
                 if not embedding:
-                    print(f"No embedding found for face {i+1}, skipping")
+                    logger.warning(f"No embedding found for face {i+1}, skipping")
                     continue
                 
                 face_uuid = str(uuid.uuid4())
@@ -206,7 +215,7 @@ async def index_base64_image(request: dict):
 
                 with open(image_path, 'wb') as f:
                     f.write(image_bytes)
-                print(f"Saved image to {image_path}")
+                logger.info(f"Saved image to {image_path}")
                 
                 gender_str = "M" if gender == 1 else "F" if gender == 0 else "U"
                 
@@ -231,7 +240,7 @@ async def index_base64_image(request: dict):
                 )
                 
                 if index_result.get('success'):
-                    print(f"Successfully indexed face {face_uuid}{f' for {name}' if name else ''}")
+                    logger.info(f"Successfully indexed face {face_uuid}{f' for {name}' if name else ''}")
                     face_info = {
                         "id": face_uuid,
                         "bbox": bbox,
@@ -245,10 +254,10 @@ async def index_base64_image(request: dict):
                         face_info["name"] = name
                     indexed_faces.append(face_info)
                 else:
-                    print(f"Failed to index face {face_uuid}: {index_result.get('error')}")
+                    logger.error(f"Failed to index face {face_uuid}: {index_result.get('error')}")
                     
             except Exception as e:
-                print(f"Error indexing face {i}: {e}")
+                logger.error(f"Error indexing face {i}: {e}")
                 continue
         
         timing_stats["total_faces"] = len(faces)
@@ -264,7 +273,7 @@ async def index_base64_image(request: dict):
         })
         
     except Exception as e:
-        print(f"Error in index endpoint: {e}")
+        logger.error(f"Error in index endpoint: {e}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 # ============================================================================
@@ -277,7 +286,7 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     active_connections.append(websocket)
     
-    print(f"WebSocket connection established. Total connections: {len(active_connections)}")
+    logger.info(f"WebSocket connection established. Total connections: {len(active_connections)}")
 
     # Set up the processing chain
     processor = FaceAnalysisHandler(face_analyzer)
@@ -285,7 +294,7 @@ async def websocket_endpoint(websocket: WebSocket):
     
     try:
         while True:
-            print("Waiting for data...")
+            logger.info("Waiting for data...")
             data = await websocket.receive_text()
             
             try:
@@ -309,22 +318,22 @@ async def websocket_endpoint(websocket: WebSocket):
                     await websocket.send_text(json.dumps(response))
 
             except json.JSONDecodeError:
-                print("Received invalid JSON data")
+                logger.warning("Received invalid JSON data")
                 
     except WebSocketDisconnect:
-        print("WebSocket disconnected")
+        logger.info("WebSocket disconnected")
     except Exception as e:
-        print(f"[WebSocket] chain error: {e}")
+        logger.error(f"[WebSocket] chain error: {e}")
         traceback.print_exc()
         
 
     finally:
         if websocket in active_connections:
             active_connections.remove(websocket)
-        print(f"WebSocket connection closed. Total connections: {len(active_connections)}")
+        logger.info(f"WebSocket connection closed. Total connections: {len(active_connections)}")
 
 
 if __name__ == "__main__":
     initialize_services()
-    print("Open http://localhost:8000 in your browser to access the webcam stream")
+    logger.info("Open http://localhost:8000 in your browser to access the webcam stream")
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")
