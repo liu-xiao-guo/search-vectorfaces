@@ -54,7 +54,7 @@ Perhaps the most important one is `oversample`. It controls how many candidates 
 
 For BBQ we can change it in the index mapping at `rescore_vector.oversample`:
 
-```
+```json
 PUT faces-bbq_hnsw-10.15/_mapping
 {
   "properties": {
@@ -78,7 +78,7 @@ PUT faces-bbq_hnsw-10.15/_mapping
 
 For DiskBBQ we can change `rescore_vector.oversample` and also `default_visit_percentage` which controls what percentage of clusters to visit during the search phase. Lower values trade accuracy for speed by visiting fewer clusters.
 
-```
+```json
 PUT faces-disk_bbq-10.15/_mapping
 {
     "properties": {
@@ -107,7 +107,7 @@ PUT faces-disk_bbq-10.15/_mapping
 
 Create a cluster in [Elastic Cloud](https://cloud.elastic.co/home) or use [start-local](https://github.com/elastic/start-local). You will need just the Elasticsearch endpoint and the provided API key.
 
-![Elastic Cloud Setup](data/doc/kibana-1.webp)
+![Elastic Cloud Setup](doc/kibana-1.webp)
 
 ### 2. Create the Indices
 
