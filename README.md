@@ -3,7 +3,7 @@
 
 [**Try the live demo**](https://play.instruqt.com/embed/elastic-pmm/tracks/vectorfaces?token=em_MtlVByxAl7nGp4Pw) with `start-local` on a single CPU.
 
-<video src="doc/vectorfaces.mp4" autoplay loop muted playsinline></video>
+![](doc/vectorfaces.gif)
 
 VectorFaces is a real-time face recognition demo that searches through **1.2 million celebrity face embeddings** using Elasticsearch vector similarity search. Point your webcam or upload a photo, and it instantly finds matching faces using vector search. What is your celebrity lookalike?
 
