@@ -70,6 +70,8 @@ class VectorSearch:
             bool: True if connection successful, False otherwise
         """
         try:
+            import ssl
+            from elasticsearch import Elasticsearch
             # Configure connection parameters
             connection_params = {
                 "hosts": self.hosts,
@@ -77,33 +79,34 @@ class VectorSearch:
                 "max_retries": 3,
                 "retry_on_timeout": True
             }
-            
             # Add API key authentication if provided
             if self.api_key:
                 connection_params["api_key"] = self.api_key
                 self.logger.info("Using API key authentication")
             else:
                 self.logger.info("No API key provided, using default authentication")
-            
+
+            # Ignore self-signed certificate check
+            connection_params["verify_certs"] = False
+            connection_params["ssl_show_warn"] = False
+            connection_params["ssl_context"] = ssl._create_unverified_context()
+
             self.client = Elasticsearch(**connection_params)
             
             # Test connection
             if self.client.ping():
                 self.is_connected = True
                 self.logger.info("Connected to Elasticsearch successfully")
-                
                 # Log cluster info (optional)
                 try:
                     info = self.client.info()
                     self.logger.info(f"Elasticsearch version: {info.get('version', {}).get('number', 'Unknown')}")
                 except Exception as e:
                     self.logger.warning(f"Could not retrieve cluster info: {e}")
-                
                 return True
             else:
                 self.logger.error("Failed to ping Elasticsearch")
                 return False
-                
         except Exception as e:
             self.logger.error(f"Error connecting to Elasticsearch: {e}")
             self.client = None

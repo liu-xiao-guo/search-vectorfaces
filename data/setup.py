@@ -54,6 +54,10 @@ if __name__ == "__main__":
     if es_apikey:
         es_kwargs['api_key'] = es_apikey
     
+    # Ignore self-signed certificate check if using HTTPS
+    if es_url.startswith('https://'):
+        es_kwargs['verify_certs'] = False
+        es_kwargs['ssl_show_warn'] = False
     es = Elasticsearch(**es_kwargs)
     
     if not es.ping():
