@@ -37,3 +37,6 @@ services:
     env_file:
       - env.local
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      
